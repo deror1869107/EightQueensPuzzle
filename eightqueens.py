@@ -34,11 +34,11 @@ class Queen:
             legal_Actions.remove(Actions.UP)
         return legal_Actions
 
-    def action(self, a, distance=1):
-        if a in self.get_legal_Actions():
-            if a == Actions.UP:
+    def action(self, action, distance=1):
+        if action in self.get_legal_Actions():
+            if action == Actions.UP:
                 self.y += distance
-            elif a == Actions.DOWN:
+            elif action == Actions.DOWN:
                 self.y -= distance
 
 class GameState:
