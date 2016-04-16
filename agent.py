@@ -7,6 +7,21 @@ class Agent:
 
 class HillClimbingAgent(Agent):
     def get_action(self, state):
+        input()
+        state.print_board()
+        next_action = (0, Actions.STOP, 0, state.collision());
+        for queen_index in range(state.get_queen_num()):
+            for (action, distance) in state.get_legal_queen_actions(queen_index):
+                if action != Actions.STOP:
+                    for next_dis in range(1, distance + 1):
+                        s = state.generator_successor(queen_index, action, next_dis)
+                        heuristic = s.collision()
+                        #heuristic = state.generator_successor(queen_index, action, next_dis).collision()
+                        #print(heuristic)
+                        if heuristic < next_action[3]:
+                            next_action = (queen_index, action, distance, heuristic)
+        print(next_action[3])
+        return next_action[0:3]
         util.raiseNotDefined()
 
 class OneSolutionAgent(Agent):
