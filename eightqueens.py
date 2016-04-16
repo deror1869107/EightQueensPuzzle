@@ -84,12 +84,18 @@ class GameState:
             board[x][y] = 'Q'
         return board
 
+    def get_boardsize(self):
+        return self.data.GameInfo.get_boardsize()
+
     def print_board(self):
         for line in self.get_board():
             print(line)
 
     def get_queen_num(self):
         return self.data.GameInfo.get_boardsize()
+
+    def set_queen_pos(self, queen_index, pos):
+        self.data.queens[queen_index].set_queen_pos(pos)
 
     def queen_action(self, queen_index, action, distance):
         self.data.queens[queen_index].action(action, distance)
