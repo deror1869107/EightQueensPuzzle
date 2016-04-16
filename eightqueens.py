@@ -78,7 +78,7 @@ class GameState:
         return count
 
     def get_board(self):
-        board = [['X' for x in range(self.data.GameInfo.get_boardsize())] for x in range(self.data.GameInfo.get_boardsize())]
+        board = [['X' for x in range(self.get_boardsize())] for x in range(self.get_boardsize())]
         for q in self.data.queens:
             x, y = q.get_queen_pos()
             board[x][y] = 'Q'

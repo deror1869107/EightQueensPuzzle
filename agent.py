@@ -7,7 +7,7 @@ class Agent:
 
 class HillClimbingAgent(Agent):
     def __init__(self):
-        self.prev_heuristic = 0
+        self.prev_heuristic = -1
 
     def get_action(self, state):
         next_action = (0, Actions.STOP, 0, state.collision());
@@ -21,10 +21,11 @@ class HillClimbingAgent(Agent):
                             next_action = (queen_index, action, distance, heuristic)
         if next_action[3] == self.prev_heuristic:
             self.random(state)
+            self.prev_heuristic = -1
+            return (0, Actions.STOP, 0)
         else:
             self.prev_heuristic = next_action[3]
         return next_action[0:3]
-        util.raiseNotDefined()
 
     def random(self, state):
         import random
