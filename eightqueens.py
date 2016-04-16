@@ -1,6 +1,6 @@
 import util
 import agent as Agent
-import copy
+import pickle
 
 class Actions:
     UP = 'Up'
@@ -16,13 +16,11 @@ class GameInfo:
 
 class Queen:
     def __init__(self, GameInfo, pos = (0, 0)):
-        self.x = pos[0]
-        self.y = pos[1]
+        self.x, self.y = pos
         self.GameInfo = GameInfo
 
     def set_queen_pos(self, pos):
-        self.x = pos[0]
-        self.y = pos[1]
+        self.x, self.y = pos
 
     def get_queen_pos(self):
         return (self.x, self.y)
@@ -48,7 +46,7 @@ class GameStateData:
         if prev_state == None:
             self.queens = [Queen(pos = (x, x), GameInfo = self.GameInfo) for x in range(self.GameInfo.get_boardsize())]
         else:
-            self.queens = copy.deepcopy(prev_state.queens)
+            self.queens = pickle.loads(pickle.dumps(prev_state.queens, -1))
 
 class GameState:
     def __init__(self, boardsize, prev_state = None):
