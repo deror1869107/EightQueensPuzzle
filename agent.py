@@ -6,9 +6,10 @@ class Agent:
         util.raiseNotDefined()
 
 class HillClimbingAgent(Agent):
+    def __init__(self):
+        self.prev_heuristic = 0
+
     def get_action(self, state):
-        input()
-        state.print_board()
         next_action = (0, Actions.STOP, 0, state.collision());
         for queen_index in range(state.get_queen_num()):
             for (action, distance) in state.get_legal_queen_actions(queen_index):
@@ -16,13 +17,21 @@ class HillClimbingAgent(Agent):
                     for next_dis in range(1, distance + 1):
                         s = state.generator_successor(queen_index, action, next_dis)
                         heuristic = s.collision()
-                        #heuristic = state.generator_successor(queen_index, action, next_dis).collision()
-                        #print(heuristic)
                         if heuristic < next_action[3]:
                             next_action = (queen_index, action, distance, heuristic)
-        print(next_action[3])
+        if next_action[3] == self.prev_heuristic:
+            self.random(state)
+        else:
+            self.prev_heuristic = next_action[3]
         return next_action[0:3]
         util.raiseNotDefined()
+
+    def random(self, state):
+        import random
+        boardsize = state.get_boardsize()
+        for x in range(boardsize):
+            state.set_queen_pos(x, (x, random.randint(0, boardsize - 1)))
+
 
 class OneSolutionAgent(Agent):
     def __init__(self):
