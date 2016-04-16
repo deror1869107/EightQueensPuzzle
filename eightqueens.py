@@ -1,5 +1,6 @@
 import util
 import agent as Agent
+import copy
 
 class Actions:
     UP = 'Up'
@@ -26,29 +27,35 @@ class Queen:
     def get_queen_pos(self):
         return (self.x, self.y)
 
-    def get_legal_Actions(self):
-        legal_Actions = [Actions.UP, Actions.DOWN, Actions.STOP]
-        if self.y == 0:
-            legal_Actions.remove(Actions.DOWN)
-        elif self.y == self.GameInfo.get_boardsize() - 1:
-            legal_Actions.remove(Actions.UP)
-        return legal_Actions
+    def get_legal_actions(self):
+        legal_actions = [(Actions.STOP, 0)]
+        if self.y != 0:
+            legal_actions.append((Actions.DOWN, self.y))
+        if self.y != self.GameInfo.get_boardsize() - 1:
+            legal_actions.append((Actions.UP, self.GameInfo.get_boardsize() - 1 - self.y))
+        return legal_actions
 
     def action(self, action, distance=1):
-        if action in self.get_legal_Actions():
+        if action in [action for (action, distance) in self.get_legal_actions()]:
             if action == Actions.UP:
                 self.y += distance
             elif action == Actions.DOWN:
                 self.y -= distance
 
+class GameStateData:
+    def __init__(self, boardsize, prev_state = None):
+        self.GameInfo = GameInfo(boardsize)
+        if prev_state == None:
+            self.queens = [Queen(pos = (x, x), GameInfo = self.GameInfo) for x in range(self.GameInfo.get_boardsize())]
+        else:
+            self.queens = copy.deepcopy(prev_state.queens)
+
 class GameState:
     def __init__(self, boardsize, prev_state = None):
         if prev_state == None:
-            self.GameInfo = GameInfo(boardsize)
-            self.queens = [Queen(pos = (x, x), GameInfo = self.GameInfo) for x in range(self.GameInfo.get_boardsize())]
+            self.data = GameStateData(boardsize)
         else:
-            self.GameInfo = prev_state.GameInfo
-            self.queens = list(prev_state.queens)
+            self.data = GameStateData(boardsize, prev_state.data)
 
     def is_queen(self, pos):
         if pos in [q.get_queen_pos() for q in self.queens]:
@@ -57,7 +64,7 @@ class GameState:
             return False
 
     def collision(self):
-        queens = list(self.queens)
+        queens = list(self.data.queens)
         count = 0
         while not len(queens) == 1:
             q = queens.pop()
@@ -71,8 +78,8 @@ class GameState:
         return count
 
     def get_board(self):
-        board = [['X' for x in range(self.GameInfo.get_boardsize())] for x in range(self.GameInfo.get_boardsize())]
-        for q in self.queens:
+        board = [['X' for x in range(self.data.GameInfo.get_boardsize())] for x in range(self.data.GameInfo.get_boardsize())]
+        for q in self.data.queens:
             x, y = q.get_queen_pos()
             board[x][y] = 'Q'
         return board
@@ -82,15 +89,18 @@ class GameState:
             print(line)
 
     def get_queen_num(self):
-        return self.GameInfo.get_boardsize()
+        return self.data.GameInfo.get_boardsize()
 
     def queen_action(self, queen_index, action, distance):
-        self.queens[queen_index].action(action, distance)
+        self.data.queens[queen_index].action(action, distance)
 
-    def generator_successor(self, queen_index, action):
-        state = GameState(prev_state=self)
-        state.queen_action(queen_index, action)
+    def generator_successor(self, queen_index, action, distance):
+        state = GameState(boardsize=self.data.GameInfo.get_boardsize(),prev_state=self)
+        state.queen_action(queen_index, action, distance)
         return state
+
+    def get_legal_queen_actions(self, queen_index):
+        return self.data.queens[queen_index].get_legal_actions()
 
     def is_win(self):
         if self.collision() == 0:
@@ -110,8 +120,6 @@ class Problem:
         print("Solution:")
         self.state.print_board()
 
-
-
 def test():
     g = GameState()
     print(g.is_queen((0,0)))
@@ -123,7 +131,7 @@ def test():
 
 def main():
     #test()
-    agent = Agent.OneSolutionAgent()
+    agent = Agent.HillClimbingAgent()
     problem = Problem(agent=agent)
     problem.solve()
 
